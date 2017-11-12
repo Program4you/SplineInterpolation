@@ -1,18 +1,12 @@
-#include <stdio.h>
-#include <math.h>
-
-const double left = 0;
-const double right = 1;
-
-typedef struct Point {
-	double x, y;
-} Point;
+#include <iostream>
+#include <cmath>
 
 double f(double x, int k, int m) {
 	return pow(tan(M_PI * pow(x, m) / 4), k);
 }
 
-double *progonka(double **matrix, int n) {
+// метод прогонки
+double *sweep(double **matrix, int n) {
 	double* a = new double[n];
     double* b = new double[n];
     double* x = new double[n + 1];
@@ -31,33 +25,6 @@ double *progonka(double **matrix, int n) {
     delete[] b;
 
     return x;
-}
-
-double *get_a(double *y, int n) {
-	double *a = new double[n + 1];
-
-	for (int i = 0; i <= n; i++)
-		a[i] = y[i];
-
-	return a;
-}
-
-double *get_b(double *c, double *y, double h, int n) {
-	double *b = new double[n + 1];
-    
-    for (int i = 0; i < n; i++)
-        b[i] = (y[i + 1] - y[i]) / h - h * (c[i + 1] + c[i]) / 3.0;
-
-    return b;
-}
-
-double *get_d(double *c, double*y, double h, int n) {
-	double *d = new double[n + 1];
-
-	for (int i = 0; i < n; i++)
-        d[i] = ((c[i + 1] - c[i]) / 3 / h);
-
-    return d;
 }
 
 double interpolate(double x0, int n, double *x, double *a, double *b, double *c, double *d) {
@@ -87,6 +54,12 @@ void freeMemory(double **a, double **b, double **c, double **d, double **x, doub
 
 int main() {
 	int n, k, m;
+	double left, right;
+
+	printf("Enter a: ");
+	scanf("%lf", &left);
+	printf("Enter b: ");
+	scanf("%lf", &right);
 
 	printf("Enter n: ");
 	scanf("%d", &n);
@@ -112,22 +85,23 @@ int main() {
     	for (int j = 0; j < n - 1; j++)
     		matrix[i][j] = 0;
     }
-    
-    matrix[1][0] = matrix[1][n - 2] = 4 * h;
-    matrix[2][0] = matrix[0][n - 2] = h;
-    matrix[3][0] = 3 * (y[2] - 2 * y[1] + y[0]) / h;
-    matrix[3][n - 2] = 3 * (y[n] - 2 * y[n - 1] + y[n - 2]) / h;
 
-    for (int i = 1; i < n - 2; i++) {
+    for (int i = 0; i < n - 1; i++) {
         matrix[0][i] = matrix[2][i] = h;
         matrix[1][i] = 4 * h;
         matrix[3][i] = 3 * (y[i + 2] - 2 * y[i + 1] + y[i]) / h;
     }
     
-    double *a = get_a(y, n);
-    double *c = progonka(matrix, n);
-    double *b = get_b(c, y, h, n);
-	double *d = get_d(c, y, h, n);
+    double *c = sweep(matrix, n);
+    double *a = new double[n + 1];
+    double *b = new double[n + 1];
+	double *d = new double[n + 1];
+
+	for (int i = 0; i < n; i++) {
+		a[i] = y[i];
+		b[i] = (y[i + 1] - y[i]) / h - h * (c[i + 1] + c[i]) / 3.0;
+        d[i] = ((c[i + 1] - c[i]) / 3 / h);
+	}
 
     double x0;
     printf("Enter x0: ");
