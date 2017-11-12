@@ -21,7 +21,7 @@ double *progonka(double **matrix, int n) {
 
     for (int i = 0; i < n - 1; i++) {
         a[i + 1] = -matrix[2][i] / (matrix[1][i] + matrix[0][i] * a[i]);
-        b[i + 1] = -(matrix[0][i] * b[i] - matrix[3][i]) / (matrix[1][i] + matrix[0][i] * b[i]);
+        b[i + 1] = (matrix[3][i] - matrix[0][i] * b[i]) / (matrix[1][i] + matrix[0][i] * b[i]);
     }
     
     for (int i = n; i > 1; i--)
